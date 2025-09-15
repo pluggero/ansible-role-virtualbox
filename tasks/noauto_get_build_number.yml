@@ -1,0 +1,41 @@
+---
+- name: Get VirtualBox build number dynamically
+  block:
+    - name: Fetch VirtualBox download directory listing
+      ansible.builtin.uri:
+        url: "https://download.virtualbox.org/virtualbox/{{ virtualbox_version }}/"
+        method: GET
+        return_content: true
+        timeout: 30
+      register: virtualbox_download_page
+      when: virtualbox_build_number is not defined
+
+    - name: Extract build number from Debian package filename
+      ansible.builtin.set_fact:
+        virtualbox_build_number: "{{ virtualbox_download_page.content | regex_search('virtualbox-\\d+\\.\\d+_' + virtualbox_version + '-(\\d+)~Debian~', '\\1') | first }}"
+      when:
+        - virtualbox_build_number is not defined
+        - virtualbox_download_page.content is defined
+
+    - name: Validate extracted build number
+      ansible.builtin.fail:
+        msg: "Failed to extract valid build number for VirtualBox version {{ virtualbox_version }}"
+      when:
+        - virtualbox_build_number is not defined or virtualbox_build_number == ""
+        - virtualbox_download_page.content is defined
+
+    - name: Display extracted build number
+      ansible.builtin.debug:
+        msg: "VirtualBox {{ virtualbox_version }} build number: {{ virtualbox_build_number }}"
+      when: virtualbox_build_number is defined
+
+  rescue:
+    - name: Handle build number retrieval failure
+      ansible.builtin.fail:
+        msg: |
+          Failed to dynamically retrieve VirtualBox build number for version {{ virtualbox_version }}.
+          Please check:
+          1. Internet connectivity to download.virtualbox.org
+          2. VirtualBox version {{ virtualbox_version }} exists
+          3. Debian packages are available for this version
+          Alternatively, manually set 'virtualbox_build_number' variable.

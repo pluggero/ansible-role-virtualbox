@@ -1,0 +1,28 @@
+---
+- name: Check if users are in the vboxusers group
+  ansible.builtin.shell: "id -nG {{ user }} | grep -qw vboxusers"
+  register: virtualbox_user_in_vboxusers_group
+  ignore_errors: true
+  changed_when: false
+  loop: "{{ virtualbox_users }}"
+  loop_control:
+    loop_var: user
+
+- name: Debug user in vboxusers group results
+  ansible.builtin.debug:
+    msg: "User {{ user }} is not in the vboxusers group."
+  when: virtualbox_user_in_vboxusers_group is failed
+  loop: "{{ virtualbox_users }}"
+  loop_control:
+    loop_var: user
+
+- name: Add users to the vboxusers group if not present
+  ansible.builtin.user:
+    name: "{{ user }}"
+    groups: vboxusers
+    append: true
+  when: virtualbox_user_in_vboxusers_group is failed
+  loop: "{{ virtualbox_users }}"
+  loop_control:
+    loop_var: user
+  become: true
