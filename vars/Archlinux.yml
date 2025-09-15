@@ -1,0 +1,9 @@
+---
+virtualbox_dep_pkgs:
+  - unzip
+  - virtualbox-host-dkms
+
+virtualbox_distro_pkgs:
+  - virtualbox
+
+virtualbox_package_name: "virtualbox-{{ virtualbox_version }}.tar.bz2"
