@@ -1,0 +1,4 @@
+---
+virtualbox_check_virtualization: false
+virtualbox_default_machine_folder: "/home/ansible/virtualboxVM"
+virtualbox_gui_expert_mode: true

@@ -1,0 +1,47 @@
+---
+- name: Verify
+  hosts: all
+
+  vars_files:
+    - ../../defaults/main.yml
+    - ../../vars/molecule.yml
+
+  vars:
+    ansible_user: ansible
+    ansible_password: ansible
+    ansible_become_password: ansible
+
+  tasks:
+    - name: Get installed VirtualBox version
+      ansible.builtin.include_tasks: ../../tasks/noauto_check_installed_version.yml
+
+    - name: Assert VirtualBox version matches expected
+      ansible.builtin.assert:
+        that:
+          - virtualbox_installed_version == virtualbox_version
+        fail_msg: "VirtualBox version mismatch: installed {{ virtualbox_installed_version }}, expected {{ virtualbox_version }}"
+        success_msg: "VirtualBox {{ virtualbox_version }} is correctly installed"
+
+    - name: Get current default machine folder
+      ansible.builtin.shell: "VBoxManage list systemproperties | grep '^Default machine folder:' | sed 's/^Default machine folder:[[:space:]]*//' "
+      register: virtualbox_verify_machine_folder
+      changed_when: false
+
+    - name: Assert default machine folder matches expected
+      ansible.builtin.assert:
+        that:
+          - virtualbox_verify_machine_folder.stdout | trim == virtualbox_default_machine_folder
+        fail_msg: "Default machine folder mismatch: got '{{ virtualbox_verify_machine_folder.stdout | trim }}', expected '{{ virtualbox_default_machine_folder }}'"
+        success_msg: "Default machine folder is correctly set to '{{ virtualbox_default_machine_folder }}'"
+
+    - name: Get current GUI expert mode setting
+      ansible.builtin.command: "VBoxManage getextradata global GUI/Settings/ExpertMode"
+      register: virtualbox_verify_expert_mode
+      changed_when: false
+
+    - name: Assert GUI expert mode is enabled
+      ansible.builtin.assert:
+        that:
+          - "'Value: true' in virtualbox_verify_expert_mode.stdout"
+        fail_msg: "GUI expert mode not enabled: got '{{ virtualbox_verify_expert_mode.stdout }}'"
+        success_msg: "GUI expert mode is correctly enabled"

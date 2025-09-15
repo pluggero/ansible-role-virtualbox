@@ -1,0 +1,11 @@
+---
+- name: Set .run installer as executable
+  ansible.builtin.file:
+    path: "{{ virtualbox_download_dir }}/{{ virtualbox_package_name }}"
+    mode: "0755"
+
+- name: Install VirtualBox via .run installer
+  ansible.builtin.command:
+    cmd: "{{ virtualbox_download_dir }}/{{ virtualbox_package_name }} --nox11"
+  become: true
+  changed_when: true

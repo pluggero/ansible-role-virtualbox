@@ -1,0 +1,12 @@
+---
+- name: Check if VirtualBox source uninstall script exists
+  ansible.builtin.stat:
+    path: /usr/lib/virtualbox/uninstall.sh
+  register: virtualbox_uninstall_script
+
+- name: Uninstall VirtualBox from source
+  ansible.builtin.command:
+    cmd: /usr/lib/virtualbox/uninstall.sh
+  when: virtualbox_uninstall_script.stat.exists
+  become: true
+  changed_when: true

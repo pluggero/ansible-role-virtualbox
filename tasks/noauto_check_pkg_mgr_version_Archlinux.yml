@@ -1,0 +1,30 @@
+---
+- name: Ensure we are using pacman
+  ansible.builtin.fail:
+    msg: "This role only supports {{ ansible_os_family }} systems that use pacman as a package manager."
+  when: ansible_pkg_mgr != "pacman"
+
+- name: Checks virtualbox version in package manager
+  when: virtualbox_distro_pkgs is defined and virtualbox_distro_pkgs | length > 0
+  block:
+    - name: Update pacman cache
+      community.general.pacman:
+        update_cache: true
+      changed_when: false
+      become: true
+
+    - name: Get virtualbox version from package manager
+      ansible.builtin.command:
+        cmd: "pacman -Si {{ virtualbox_distro_pkgs[0] }}"
+      changed_when: false
+      failed_when: false
+      ignore_errors: true
+      register: virtualbox_pkg_mgr_version_cmd
+
+    - name: Extract only the version into a variable
+      ansible.builtin.set_fact:
+        virtualbox_pkg_mgr_version: "{{ (virtualbox_pkg_mgr_version_cmd.stdout | regex_search('Version.*?([\\d\\.]+)', '\\1', multiline=True))[0] }}"
+
+    - name: Debug virtualbox version from package manager
+      ansible.builtin.debug:
+        var: virtualbox_pkg_mgr_version

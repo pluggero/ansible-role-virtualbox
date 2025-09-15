@@ -1,0 +1,18 @@
+---
+- name: Check installed virtualbox version
+  block:
+    - name: Get installed virtualbox version
+      ansible.builtin.command:
+        cmd: "VBoxManage --version"
+      ignore_errors: true
+      changed_when: false
+      failed_when: false
+      register: virtualbox_installed_version_cmd
+
+    - name: Extract only the version into a variable
+      ansible.builtin.set_fact:
+        virtualbox_installed_version: "{{ (virtualbox_installed_version_cmd.stdout | regex_search('(\\d+\\.\\d+\\.\\d+)r\\d+', '\\1') | default([''], true))[0] }}"
+
+    - name: Debug installed virtualbox version
+      ansible.builtin.debug:
+        var: virtualbox_installed_version
