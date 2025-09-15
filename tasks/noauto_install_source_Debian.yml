@@ -1,0 +1,11 @@
+---
+- name: Ensure we are using apt
+  ansible.builtin.fail:
+    msg: "This role only supports {{ ansible_os_family }} systems that use apt as a package manager."
+  when: ansible_pkg_mgr != "apt"
+
+- name: Install VirtualBox from local .deb package
+  ansible.builtin.apt:
+    deb: "{{ virtualbox_download_dir }}/{{ virtualbox_package_name }}"
+    state: present
+  become: true

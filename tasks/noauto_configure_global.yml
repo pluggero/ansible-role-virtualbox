@@ -1,0 +1,69 @@
+---
+- name: Get current default machine folder for {{ user }}
+  ansible.builtin.shell: "VBoxManage list systemproperties | grep '^Default machine folder:' | sed 's/^Default machine folder:[[:space:]]*//' "
+  register: virtualbox_current_machine_folder
+  changed_when: false
+  ignore_errors: "{{ ansible_check_mode }}"
+  loop: "{{ virtualbox_users }}"
+  loop_control:
+    loop_var: user
+  become: true
+  become_user: "{{ user }}"
+
+- name: Set default machine folder
+  ansible.builtin.command:
+    argv:
+      - VBoxManage
+      - setproperty
+      - machinefolder
+      - "{{ virtualbox_default_machine_folder }}"
+  when:
+    - virtualbox_default_machine_folder | length > 0
+    - item.stdout | trim != virtualbox_default_machine_folder
+  changed_when: true
+  loop: "{{ virtualbox_current_machine_folder.results }}"
+  become: true
+  become_user: "{{ item.user }}"
+
+- name: Get current GUI expert mode setting for {{ user }}
+  ansible.builtin.command: "VBoxManage getextradata global GUI/Settings/ExpertMode"
+  register: virtualbox_current_expert_mode
+  changed_when: false
+  ignore_errors: "{{ ansible_check_mode }}"
+  loop: "{{ virtualbox_users }}"
+  loop_control:
+    loop_var: user
+  become: true
+  become_user: "{{ user }}"
+
+- name: Enable GUI expert mode
+  ansible.builtin.command:
+    argv:
+      - VBoxManage
+      - setextradata
+      - global
+      - GUI/Settings/ExpertMode
+      - "true"
+  when:
+    - virtualbox_gui_expert_mode | bool
+    - "'Value: true' not in item.stdout"
+  changed_when: true
+  loop: "{{ virtualbox_current_expert_mode.results }}"
+  become: true
+  become_user: "{{ item.user }}"
+
+- name: Disable GUI expert mode
+  ansible.builtin.command:
+    argv:
+      - VBoxManage
+      - setextradata
+      - global
+      - GUI/Settings/ExpertMode
+      - "false"
+  when:
+    - not (virtualbox_gui_expert_mode | bool)
+    - "'Value: true' in item.stdout"
+  changed_when: true
+  loop: "{{ virtualbox_current_expert_mode.results }}"
+  become: true
+  become_user: "{{ item.user }}"

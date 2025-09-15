@@ -1,0 +1,8 @@
+---
+- name: Configure virtualbox users
+  ansible.builtin.include_tasks:
+    file: noauto_virtualbox_users.yml
+
+- name: Configure virtualbox global settings
+  ansible.builtin.include_tasks:
+    file: noauto_configure_global.yml

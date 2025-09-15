@@ -1,0 +1,22 @@
+---
+- name: Set .run installer as executable
+  ansible.builtin.file:
+    path: "{{ virtualbox_download_dir }}/{{ virtualbox_package_name }}"
+    mode: "0755"
+
+- name: Install VirtualBox via .run installer
+  ansible.builtin.command:
+    cmd: "{{ virtualbox_download_dir }}/{{ virtualbox_package_name }} --nox11"
+  become: true
+  changed_when: true
+  register: virtualbox_run_installer_result
+  failed_when: >
+    virtualbox_run_installer_result.rc != 0 and
+    'VirtualBox has been installed successfully' not in virtualbox_run_installer_result.stderr
+
+- name: Build VirtualBox kernel modules via vboxconfig
+  ansible.builtin.command:
+    cmd: /sbin/vboxconfig
+  become: true
+  changed_when: true
+  failed_when: false

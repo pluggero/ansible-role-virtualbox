@@ -1,0 +1,18 @@
+---
+# Installation
+virtualbox_version: "7.1.8"
+virtualbox_install_method: "dynamic"
+virtualbox_force_install: false
+virtualbox_check_virtualization: true
+
+# Users
+virtualbox_users:
+  - "{{ ansible_user }}"
+
+# Configuration
+virtualbox_default_machine_folder: ""
+virtualbox_gui_expert_mode: false
+
+# Source install
+virtualbox_download_url: "https://download.virtualbox.org/virtualbox/{{ virtualbox_version }}/{{ virtualbox_package_name }}"
+virtualbox_download_dir: "/tmp"

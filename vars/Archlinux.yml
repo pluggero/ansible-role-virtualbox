@@ -1,0 +1,11 @@
+---
+virtualbox_dep_pkgs:
+  - unzip
+  - linux-headers
+  - virtualbox-host-dkms
+
+virtualbox_distro_pkgs:
+  - virtualbox
+
+virtualbox_installer_arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
+virtualbox_package_name: "VirtualBox-{{ virtualbox_version }}-{{ virtualbox_build_number }}-Linux_{{ virtualbox_installer_arch }}.run"
