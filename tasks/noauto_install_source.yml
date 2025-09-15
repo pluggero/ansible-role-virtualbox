@@ -1,0 +1,44 @@
+---
+- name: Ensure virtualbox is installed
+  block:
+    - name: Import installed virtualbox version check
+      ansible.builtin.include_tasks: noauto_check_installed_version.yml
+      when: virtualbox_installed_version is not defined
+
+    - name: Force install if the version numbers do not match
+      ansible.builtin.set_fact:
+        virtualbox_force_install: true
+      when:
+        - virtualbox_installed_version is defined
+        - virtualbox_installed_version != virtualbox_version
+
+    - name: Install virtualbox from source
+      when: virtualbox_installed_version is not defined or virtualbox_force_install
+      block:
+        - name: Uninstall current virtualbox installation
+          ansible.builtin.include_tasks: noauto_uninstall.yml
+          when: virtualbox_installed_version is defined and virtualbox_installed_version != ""
+
+        - name: Download virtualbox
+          ansible.builtin.get_url:
+            url: "{{ virtualbox_download_url }}"
+            dest: "{{ virtualbox_download_dir }}/virtualbox-{{ virtualbox_version }}.tar.bz2"
+            mode: "0600"
+            owner: "{{ ansible_user }}"
+            group: "{{ ansible_user }}"
+
+        - name: Extract archive
+          ansible.builtin.unarchive:
+            src: "{{ virtualbox_download_dir }}/virtualbox-{{ virtualbox_version }}.tar.gz"
+            dest: "{{ virtualbox_download_dir }}/"
+            remote_src: true
+
+        - name: Remove build directory
+          ansible.builtin.file:
+            path: "{{ virtualbox_download_dir }}/virtualbox-{{ virtualbox_version }}"
+            state: absent
+
+        - name: Remove archive
+          ansible.builtin.file:
+            path: "{{ virtualbox_download_dir }}/virtualbox-{{ virtualbox_version }}.tar.gz"
+            state: absent
