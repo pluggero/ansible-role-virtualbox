@@ -1,0 +1,62 @@
+---
+- name: Virtualization compatibility checks
+  block:
+    - name: Get CPU flags from /proc/cpuinfo
+      ansible.builtin.command: "awk -F: '/^flags/ {print $2; exit}' /proc/cpuinfo"
+      register: virtualbox_cpu_flags_cmd
+      changed_when: false
+
+    - name: Set CPU flags fact
+      ansible.builtin.set_fact:
+        virtualbox_cpu_flags: "{{ virtualbox_cpu_flags_cmd.stdout.split() }}"
+
+    - name: Debug CPU information
+      ansible.builtin.debug:
+        msg:
+          - "CPU flags detected: {{ virtualbox_cpu_flags }}"
+          - "Checking for Intel (GenuineIntel) and AMD (AuthenticAMD) processors"
+          - "Checking for virtualization flags: vmx (Intel) or svm (AMD)"
+
+    - name: Check if Intel processor
+      ansible.builtin.command: "grep -q GenuineIntel /proc/cpuinfo"
+      ignore_errors: true
+      register: virtualbox_cpu_is_intel
+      changed_when: false
+
+    - name: Check if AMD processor
+      ansible.builtin.command: "grep -q AuthenticAMD /proc/cpuinfo"
+      ignore_errors: true
+      register: virtualbox_cpu_is_amd
+      changed_when: false
+
+    - name: Debug CPU vendor detection results
+      ansible.builtin.debug:
+        msg:
+          - "Intel processor detected: {{ virtualbox_cpu_is_intel.rc == 0 }}"
+          - "AMD processor detected: {{ virtualbox_cpu_is_amd.rc == 0 }}"
+          - "VT-x (vmx) flag present: {{ 'vmx' in virtualbox_cpu_flags }}"
+          - "AMD-V (svm) flag present: {{ 'svm' in virtualbox_cpu_flags }}"
+
+    - name: Assert that hardware virtualization is supported
+      ansible.builtin.assert:
+        that:
+          - (virtualbox_cpu_is_intel.rc == 0 and 'vmx' in virtualbox_cpu_flags) or (virtualbox_cpu_is_amd.rc == 0 and 'svm' in virtualbox_cpu_flags)
+        fail_msg: >-
+          Hardware virtualization (VT-x/AMD-V) is not supported or not enabled in BIOS.
+          VirtualBox requires hardware virtualization to run efficiently.
+          Please enable VT-x (Intel) or AMD-V (AMD) in your BIOS/UEFI settings.
+        success_msg: "Hardware virtualization is supported and enabled."
+
+    - name: Check if KVM device exists
+      ansible.builtin.stat:
+        path: /dev/kvm
+      register: virtualbox_kvm_device
+
+    - name: Assert that KVM device is available
+      ansible.builtin.assert:
+        that:
+          - virtualbox_kvm_device.stat.exists
+        fail_msg: >-
+          /dev/kvm device not found. This indicates virtualization may not be properly enabled
+          or KVM modules are not loaded. VirtualBox performance may be degraded.
+        success_msg: "/dev/kvm device is available for hardware acceleration."

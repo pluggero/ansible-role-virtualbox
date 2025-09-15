@@ -1,0 +1,9 @@
+---
+virtualbox_dep_pkgs:
+  - unzip
+  # - virtualbox-dkms
+
+virtualbox_distro_pkgs:
+  - "virtualbox-{{ virtualbox_version | regex_replace('\\.\\d+$', '') }}"
+
+virtualbox_package_name: "virtualbox-{{ virtualbox_version | regex_replace('\\.\\d+$', '') }}_{{ virtualbox_version }}-{{ virtualbox_build_number }}~Debian~bookworm_{{ virtualbox_repository_arch }}.deb"
