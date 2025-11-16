@@ -1,6 +1,6 @@
 yamllint
 ansible
 # Pinned versions because of https://github.com/ansible-community/molecule-plugins/issues/301
-molecule==25.1.0
+molecule==25.11.0
 molecule-plugins[vagrant]
 pexpect # Needed for ansible expect module
