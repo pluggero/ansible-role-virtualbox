@@ -10,6 +10,19 @@
   become: true
   become_user: "{{ user }}"
 
+- name: Ensure default machine folder exists for {{ user }}
+  ansible.builtin.file:
+    path: "{{ virtualbox_default_machine_folder }}"
+    state: directory
+    mode: "0750"
+    owner: "{{ user }}"
+    group: "{{ user }}"
+  when: virtualbox_default_machine_folder | length > 0
+  loop: "{{ virtualbox_users }}"
+  loop_control:
+    loop_var: user
+  become: true
+
 - name: Set default machine folder
   ansible.builtin.command:
     argv:
