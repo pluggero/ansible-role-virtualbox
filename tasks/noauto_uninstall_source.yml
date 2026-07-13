@@ -1,12 +1,24 @@
 ---
-- name: Check if VirtualBox source uninstall script exists
+- name: Check possible VirtualBox source uninstall script locations
   ansible.builtin.stat:
-    path: /usr/lib/virtualbox/uninstall.sh
-  register: virtualbox_uninstall_script
+    path: "{{ item }}"
+  register: virtualbox_uninstall_script_stats
+  loop:
+    - /usr/lib/virtualbox/uninstall.sh
+    - /opt/VirtualBox/uninstall.sh
+  loop_control:
+    label: "{{ item }}"
+
+- name: Determine VirtualBox source uninstall script path
+  ansible.builtin.set_fact:
+    virtualbox_uninstall_script_path: >-
+      {{ (virtualbox_uninstall_script_stats.results
+          | selectattr('stat.exists', 'true')
+          | map(attribute='item') | list | first) | default('', true) }}
 
 - name: Uninstall VirtualBox from source
   ansible.builtin.command:
-    cmd: /usr/lib/virtualbox/uninstall.sh
-  when: virtualbox_uninstall_script.stat.exists
+    cmd: "{{ virtualbox_uninstall_script_path }}"
+  when: virtualbox_uninstall_script_path != ""
   become: true
   changed_when: true
