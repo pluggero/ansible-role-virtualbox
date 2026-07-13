@@ -23,7 +23,9 @@
         success_msg: "VirtualBox {{ virtualbox_version }} is correctly installed"
 
     - name: Get current default machine folder
-      ansible.builtin.shell: "VBoxManage list systemproperties | grep '^Default machine folder:' | sed 's/^Default machine folder:[[:space:]]*//' "
+      ansible.builtin.shell:
+        cmd: set -o pipefail && VBoxManage list systemproperties | grep '^Default machine folder:' | sed 's/^Default machine folder:[[:space:]]*//'
+        executable: /bin/bash
       register: virtualbox_verify_machine_folder
       changed_when: false
 
