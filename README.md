@@ -34,6 +34,15 @@ The following methods are available:
 
 None.
 
+## Notes for Arch Linux
+
+Arch ships several parallel-installable kernel variants (`linux`, `linux-lts`,
+`linux-zen`, `linux-hardened`, ...), each with its own headers package (e.g.
+`linux-lts-headers`). This role detects the kernel variant actually running on the
+target host and installs the matching headers package automatically, so the
+VirtualBox kernel module (`vboxhost`) can be built correctly by DKMS regardless of
+which kernel variant is in use.
+
 ## Example Playbook
 
 ```yaml
