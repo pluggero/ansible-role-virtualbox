@@ -1,7 +1,6 @@
 ---
 virtualbox_dep_pkgs:
   - unzip
-  - linux-headers
   - virtualbox-host-dkms
 
 virtualbox_distro_pkgs:

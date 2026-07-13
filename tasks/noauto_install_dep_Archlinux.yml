@@ -4,6 +4,31 @@
     msg: "This role only supports {{ ansible_os_family }} systems that use pacman as a package manager."
   when: ansible_pkg_mgr != "pacman"
 
+- name: Check that running kernel's package metadata is available
+  ansible.builtin.stat:
+    path: "/usr/lib/modules/{{ ansible_kernel }}/pkgbase"
+  register: virtualbox_kernel_pkgbase_file
+
+- name: Assert kernel package metadata is available
+  ansible.builtin.assert:
+    that:
+      - virtualbox_kernel_pkgbase_file.stat.exists
+    fail_msg: >-
+      Could not determine the running kernel's package name from
+      /usr/lib/modules/{{ ansible_kernel }}/pkgbase. This usually means the running
+      kernel ({{ ansible_kernel }}) was not installed via a standard pacman kernel
+      package (e.g. linux, linux-lts, linux-zen, linux-hardened). Install the matching
+      "-headers" package for your kernel manually before re-running this role.
+
+- name: Read running kernel package base name
+  ansible.builtin.slurp:
+    src: "/usr/lib/modules/{{ ansible_kernel }}/pkgbase"
+  register: virtualbox_kernel_pkgbase_raw
+
+- name: Add detected kernel headers package to dependency list
+  ansible.builtin.set_fact:
+    virtualbox_dep_pkgs: "{{ virtualbox_dep_pkgs + [(virtualbox_kernel_pkgbase_raw.content | b64decode | trim) + '-headers'] }}"
+
 - name: Install virtualbox dependencies via pacman
   block:
     - name: Update pacman cache
