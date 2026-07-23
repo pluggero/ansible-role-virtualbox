@@ -16,6 +16,9 @@
           | selectattr('stat.exists', 'true')
           | map(attribute='item') | list | first) | default('', true) }}
 
+- name: Wait for any running VirtualBox instance to stop
+  ansible.builtin.include_tasks: noauto_wait_for_virtualbox_stopped.yml
+
 - name: Uninstall VirtualBox from source
   ansible.builtin.command:
     cmd: "{{ virtualbox_uninstall_script_path }}"
