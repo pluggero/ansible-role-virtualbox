@@ -45,8 +45,8 @@
       changed_when: false
       failed_when: false
       until: virtualbox_running_recheck.rc != 0
-      retries: 3
-      delay: 2
+      retries: 5
+      delay: 10
 
     - name: Assert VirtualBox has actually stopped
       ansible.builtin.assert:
