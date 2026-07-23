@@ -30,6 +30,18 @@ The following methods are available:
   - **NOTE**: This method installs the latest version available in the package manager and not the version defined in `virtualbox_version`.
 - `dynamic`: Installs virtualbox from package manager if available in the correct version, otherwise installs from source
 
+```yaml
+virtualbox_interactive: true
+```
+
+When installing from source, the role waits briefly for any running VirtualBox
+instance (`VBoxSVC`) to stop before (re)installing, since the installer cannot
+proceed while VirtualBox is running. If it is still running afterwards and
+`virtualbox_interactive` is `true`, the role prompts for confirmation before
+force-stopping it (this will terminate any running VMs). Set this to `false` for
+non-interactive/unattended runs (e.g. CI), in which case the role fails
+immediately with a clear message instead of prompting.
+
 ## Dependencies
 
 None.

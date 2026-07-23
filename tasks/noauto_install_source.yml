@@ -27,6 +27,9 @@
             owner: "{{ ansible_user }}"
             group: "{{ ansible_user }}"
 
+        - name: Wait for any running VirtualBox instance to stop
+          ansible.builtin.include_tasks: noauto_wait_for_virtualbox_stopped.yml
+
         - name: Install OS-specifically from source
           ansible.builtin.include_tasks: "{{ task_file }}"
           with_first_found:
