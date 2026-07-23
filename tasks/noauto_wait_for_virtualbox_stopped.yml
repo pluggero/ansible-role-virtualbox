@@ -1,0 +1,56 @@
+---
+- name: Check for a running VirtualBox instance
+  ansible.builtin.command: pgrep -x VBoxSVC
+  register: virtualbox_running_check
+  changed_when: false
+  failed_when: false
+  until: virtualbox_running_check.rc != 0
+  retries: 5
+  delay: 3
+
+- name: Handle VirtualBox still running before (re)install
+  when: virtualbox_running_check.rc == 0
+  block:
+    - name: Fail immediately if VirtualBox is running and the role is non-interactive
+      ansible.builtin.fail:
+        msg: >-
+          VirtualBox (VBoxSVC) is still running and virtualbox_interactive is false, so it
+          cannot be stopped automatically. Please close VirtualBox and re-run the playbook.
+      when: not virtualbox_interactive
+
+    - name: Ask whether to force-stop the running VirtualBox instance
+      ansible.builtin.pause:
+        prompt: >-
+          VirtualBox is still running and must be stopped before the installer can continue.
+          Force-stop it now? This will terminate any running VMs. (y)es/(n)o
+      become: false
+      register: virtualbox_force_stop_confirmation
+
+    - name: Fail if the user declined to force-stop VirtualBox
+      ansible.builtin.assert:
+        that:
+          - virtualbox_force_stop_confirmation.user_input in ['y', 'yes']
+        fail_msg: "Please close VirtualBox manually and re-run the playbook."
+        quiet: true
+      become: false
+
+    - name: Force-stop the running VirtualBox instance
+      ansible.builtin.command: pkill -TERM -x VBoxSVC
+      become: true
+      changed_when: true
+
+    - name: Re-check that VirtualBox has stopped
+      ansible.builtin.command: pgrep -x VBoxSVC
+      register: virtualbox_running_recheck
+      changed_when: false
+      failed_when: false
+      until: virtualbox_running_recheck.rc != 0
+      retries: 3
+      delay: 2
+
+    - name: Assert VirtualBox has actually stopped
+      ansible.builtin.assert:
+        that:
+          - virtualbox_running_recheck.rc != 0
+        fail_msg: "VirtualBox could not be stopped automatically. Please close it manually and re-run the playbook."
+        quiet: true

@@ -2,6 +2,9 @@
 virtualbox_dep_pkgs:
   - unzip
   - virtualbox-host-dkms
+  - libx11
+  - fontconfig
+  - libxkbcommon
 
 virtualbox_distro_pkgs:
   - virtualbox

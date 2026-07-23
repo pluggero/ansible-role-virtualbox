@@ -2,6 +2,7 @@
 virtualbox_dep_pkgs:
   - unzip
   - dkms
+  - "linux-headers-{{ ansible_kernel }}"
 
 virtualbox_distro_pkgs:
   - "virtualbox-{{ virtualbox_version | regex_replace('\\.\\d+$', '') }}"
