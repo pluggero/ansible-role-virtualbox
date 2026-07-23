@@ -1,6 +1,6 @@
 ---
 # Installation
-virtualbox_version: "7.2.12"
+virtualbox_version: "7.2.14"
 virtualbox_install_method: "dynamic"
 virtualbox_force_install: false
 virtualbox_check_virtualization: true
