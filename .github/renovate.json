@@ -42,15 +42,25 @@
     {
       "customType": "regex",
       "managerFilePatterns": [
-        "/^defaults/main\\.yml$/",
+        "/^defaults/main\\.yml$/"
+      ],
+      "matchStrings": [
+        "virtualbox_version:\\s+\"(?<currentValue>[\\d\\.]+)\""
+      ],
+      "datasourceTemplate": "custom.virtualbox",
+      "depNameTemplate": "virtualbox-role",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
         "/^.github/workflows/ci\\.yml$/"
       ],
       "matchStrings": [
-        "virtualbox_version:\\s+\"(?<currentValue>[\\d\\.]+)\"",
         "VBOX_VERSION:\\s+\"(?<currentValue>[\\d\\.]+)\""
       ],
       "datasourceTemplate": "custom.virtualbox",
-      "depNameTemplate": "virtualbox",
+      "depNameTemplate": "virtualbox-ci",
       "versioningTemplate": "semver"
     },
     {
