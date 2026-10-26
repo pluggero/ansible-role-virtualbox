@@ -7,9 +7,9 @@ virtualbox_dep_pkgs:
 virtualbox_distro_pkgs:
   - "virtualbox-{{ virtualbox_version | regex_replace('\\.\\d+$', '') }}"
 
-virtualbox_package_name: "virtualbox-{{ virtualbox_version | regex_replace('\\.\\d+$', '') }}_{{ virtualbox_version }}-{{ virtualbox_build_number }}~Debian~bookworm_{{ virtualbox_repository_arch }}.deb"
-
 virtualbox_repository_distribution: "{{ 'bookworm' if ansible_distribution_release in ['kali-rolling'] else ansible_distribution_release }}"
+
+virtualbox_package_name: "virtualbox-{{ virtualbox_version | regex_replace('\\.\\d+$', '') }}_{{ virtualbox_version }}-{{ virtualbox_build_number }}~Debian~{{ virtualbox_repository_distribution }}_{{ virtualbox_repository_arch }}.deb"
 virtualbox_repository_arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'armhf' if ansible_architecture == 'armv7l' else 'amd64' }}"
 virtualbox_repository_gpg_key: "https://www.virtualbox.org/download/oracle_vbox_2016.asc"
 virtualbox_repository_gpg_key_checksum: "sha256:49e6801d45f6536232c11be6cdb43fa8e0198538d29d1075a7e10165e1fbafe2"
