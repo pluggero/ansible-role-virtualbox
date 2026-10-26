@@ -22,6 +22,10 @@
       "automergeType": "pr"
     },
     {
+      "matchDatasources": ["github-runners"],
+      "automerge": false
+    },
+    {
       "matchManagers": ["custom.regex"],
       "matchDepNames": ["/^pluggero\\/vagrant-.*-ansible$/"],
       "automerge": true,
