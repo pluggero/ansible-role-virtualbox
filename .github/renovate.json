@@ -9,7 +9,8 @@
     {
       "matchManagers": ["github-actions", "pip_requirements"],
       "automerge": true,
-      "automergeType": "pr"
+      "automergeType": "pr",
+      "minimumReleaseAge": "7 days"
     },
     {
       "matchManagers": ["custom.regex"],
@@ -19,7 +20,8 @@
       "matchManagers": ["custom.regex"],
       "matchDepNames": ["python/cpython"],
       "automerge": true,
-      "automergeType": "pr"
+      "automergeType": "pr",
+      "minimumReleaseAge": "7 days"
     },
     {
       "matchDatasources": ["github-runners"],
@@ -29,7 +31,8 @@
       "matchManagers": ["custom.regex"],
       "matchDepNames": ["/^pluggero\\/vagrant-.*-ansible$/"],
       "automerge": true,
-      "automergeType": "pr"
+      "automergeType": "pr",
+      "minimumReleaseAge": "7 days"
     }
   ],
   "enabledManagers": [
@@ -38,6 +41,12 @@
     "custom.regex"
   ],
   "assignees": ["pluggero"],
+  "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "minimumReleaseAge": null,
+    "automerge": false,
+    "labels": ["security"]
+  },
   "customManagers": [
     {
       "customType": "regex",
