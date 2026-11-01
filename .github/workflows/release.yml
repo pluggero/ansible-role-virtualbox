@@ -28,10 +28,10 @@ jobs:
       - name: Set up Python 3
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
-          python-version: "3.x"
+          python-version: "3.14"
 
       - name: Install Ansible
-        run: pip3 install ansible-core
+        run: pip3 install -r requirements.txt
 
       - name: Trigger a new import on Galaxy
         run: >-
